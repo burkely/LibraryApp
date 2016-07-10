@@ -22,6 +22,12 @@ public class Constants {
             "test 11", "test 12", "test 13", "test 14", "test 15"
             ));
 
+    public static int myTestImgs[] = {R.mipmap.img1, R.mipmap.img2, R.mipmap.img2a, R.mipmap.img3,
+                                        R.mipmap.img4, R.mipmap.img5, R.mipmap.img5a, R.mipmap.img1,
+                                        R.mipmap.img2, R.mipmap.img2a, R.mipmap.img3, R.mipmap.img4,
+                                        R.mipmap.img5, R.mipmap.img5a, R.mipmap.img5a};
+
+
     // child data in format of header title, child title
     private HashMap<String, List<String>> _listDataChild;
 

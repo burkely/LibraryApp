@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
 import android.view.Menu;
+import android.view.Window;
 
 
 public class MainFragmentActivity extends FragmentActivity {
@@ -18,16 +19,18 @@ public class MainFragmentActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
             BrowseFragment bFragment = new BrowseFragment();
 
-            // In case this activity was started with special instructions from an
-            // Intent, pass the Intent's extras to the fragment as arguments
-            bFragment.setArguments(getIntent().getExtras());
+            ItemViewFragment viewFragment = new ItemViewFragment();
 
             transaction.add(R.id.fragment_container, bFragment);
             transaction.commit();

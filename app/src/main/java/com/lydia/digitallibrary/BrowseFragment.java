@@ -1,15 +1,17 @@
 package com.lydia.digitallibrary;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,11 +26,17 @@ public class BrowseFragment extends Fragment{
     private ExpandableListView expListView;
     private List<String> listDataHeader;
     private HashMap<String, List<String>> listDataChild;
-    private Context mContext;
+    private Parcelable mState;
+    public int prevExpandedPosition;
+    public int currExpandedPosition;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        GlobalVariables.setCurrExpandedPos(-1);
+        GlobalVariables.setPrevExpandedPos(-1);
 
         // preparing list data
         prepareListData();
@@ -38,79 +46,157 @@ public class BrowseFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                 Bundle savedInstanceState){
 
-        View rootView = inflater.inflate(R.layout.browse_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.browse_frag, container, false);
         rootView.setTag(TAG);
 
         // get the listview
         expListView = (ExpandableListView) rootView.findViewById(R.id.lvExp);
 
-        mContext = getActivity();
-        listAdapter = new BrowseExpandableListAdapter(mContext, listDataHeader, listDataChild);
+        listAdapter = new BrowseExpandableListAdapter(getActivity(), this, listDataHeader, listDataChild);
 
         // setting list adapter
         expListView.setAdapter(listAdapter);
 
-        // Listview Group click listener
-        expListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
 
+        // Listview Group click listener
+        /*expListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v,
-                                        int groupPosition, long id) {
-                // Toast.makeText(getApplicationContext(),
-                // "Group Clicked " + listDataHeader.get(groupPosition),
-                // Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
+                                        int groupPosition, long id) {}
+        });*/
+
 
         // Listview Group expanded listener
         expListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
 
             @Override
             public void onGroupExpand(int groupPosition) {
-                Toast.makeText(mContext,
-                        listDataHeader.get(groupPosition) + " Expanded",
-                        Toast.LENGTH_SHORT).show();
+                currExpandedPosition = (int) listAdapter.getGroupId(groupPosition);
+                GlobalVariables.setCurrExpandedPos(currExpandedPosition);
+
+                prevExpandedPosition = GlobalVariables.getPrevExpandedPos();
+                //if others are open close em
+                if (prevExpandedPosition != -1) {
+                    Toast.makeText(getContext(), "Expanding " + groupPosition + " collapsing " + prevExpandedPosition,
+                            Toast.LENGTH_LONG).show();
+
+                    //and hide the seeMore view
+                    /*expListView.findViewById((int) listAdapter.getGroupId(prevExpandedPosition))
+                            .findViewById(R.id.seeMore)
+                            .setVisibility(View.INVISIBLE);*/
+
+                    expListView.collapseGroup(prevExpandedPosition);
+                }
+
+                //prevExpandedPosition = currExpandedPosition;
+                GlobalVariables.setPrevExpandedPos(currExpandedPosition);
             }
         });
 
         // Listview Group collasped listener
         expListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
-
             @Override
             public void onGroupCollapse(int groupPosition) {
-                Toast.makeText(mContext,
-                        listDataHeader.get(groupPosition) + " Collapsed",
-                        Toast.LENGTH_SHORT).show();
+                if (GlobalVariables.getCurrExpandedPos() == groupPosition) {
+                    //Log.d("closing open", String.valueOf(prevExpandedPosition));
+                    //and hide the seeMore view
+                    /*expListView.findViewById((int) listAdapter.getGroupId(currExpandedPosition))
+                            .findViewById(R.id.seeMore)
+                            .setVisibility(View.INVISIBLE);*/
 
+                    GlobalVariables.setPrevExpandedPos(-1);
+                    GlobalVariables.setCurrExpandedPos(-1);
+                }
             }
         });
 
-        // Listview on child click listener
-        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
+/*        // Listview on child click listener
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {
-                // TODO Auto-generated method stub
-                Toast.makeText(
-                        mContext,
-                        listDataHeader.get(groupPosition)
-                                + " : "
-                                + listDataChild.get(
-                                listDataHeader.get(groupPosition)).get(
-                                childPosition), Toast.LENGTH_SHORT)
-                        .show();
-                return false;
-            }
-        });
+                                        int groupPosition, int childPosition, long id) {}
+        });*/
 
         return rootView;
     }
 
+    @Override
+    public void onStart(){
+        super.onStart();
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        View rv = getView();
+        Log.d("in on pause", " ");
+        // get the listview
+        expListView = (ExpandableListView) rv.findViewById(R.id.lvExp);
+
+        RecyclerView viewer = (RecyclerView) expListView.findViewById(R.id.browseChildView);
+
+       if (viewer != null){
+           LinearLayoutManager lm = (LinearLayoutManager) viewer.getLayoutManager();
+           mState = lm.onSaveInstanceState();
+       }
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        View rv = getView();
+        Log.d("in on stop", " ");
+        // get the listview
+        expListView = (ExpandableListView) rv.findViewById(R.id.lvExp);
+
+        RecyclerView viewer = (RecyclerView) expListView.findViewById(R.id.browseChildView);
+
+        if (viewer != null){
+            Log.d("onStop", "viewer "+viewer.toString());
+            LinearLayoutManager lm = (LinearLayoutManager) viewer.getLayoutManager();
+            Log.d("onStop", "lm "+lm.toString());
+            mState = lm.onSaveInstanceState();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's state here
+
+        View rv = getView();
+        Log.d("in on stop", " ");
+        // get the listview
+        expListView = (ExpandableListView) rv.findViewById(R.id.lvExp);
+
+        RecyclerView viewer = (RecyclerView) expListView.findViewById(R.id.browseChildView);
+
+        if (viewer != null){
+            Log.d("onStop", "viewer "+viewer.toString());
+            LinearLayoutManager lm = (LinearLayoutManager) viewer.getLayoutManager();
+            Log.d("onStop", "lm "+lm.toString());
+            mState = lm.onSaveInstanceState();
+        }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("in on resume", " ");
+        View rv = getView();
+
+        if (rv != null) {
+
+        }
+    }
+
     private void prepareListData() {
         listDataHeader = Constants.CATEGORIES;
-        listDataChild = new HashMap<String, List<String>>();
+        listDataChild = new HashMap<>();
 
         // Adding child data
         for(int i=0; i<listDataHeader.size(); i++){
