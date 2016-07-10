@@ -77,18 +77,8 @@ public class BrowseFragment extends Fragment{
                 prevExpandedPosition = GlobalVariables.getPrevExpandedPos();
                 //if others are open close em
                 if (prevExpandedPosition != -1) {
-                    Toast.makeText(getContext(), "Expanding " + groupPosition + " collapsing " + prevExpandedPosition,
-                            Toast.LENGTH_LONG).show();
-
-                    //and hide the seeMore view
-                    /*expListView.findViewById((int) listAdapter.getGroupId(prevExpandedPosition))
-                            .findViewById(R.id.seeMore)
-                            .setVisibility(View.INVISIBLE);*/
-
                     expListView.collapseGroup(prevExpandedPosition);
                 }
-
-                //prevExpandedPosition = currExpandedPosition;
                 GlobalVariables.setPrevExpandedPos(currExpandedPosition);
             }
         });
@@ -98,69 +88,35 @@ public class BrowseFragment extends Fragment{
             @Override
             public void onGroupCollapse(int groupPosition) {
                 if (GlobalVariables.getCurrExpandedPos() == groupPosition) {
-                    //Log.d("closing open", String.valueOf(prevExpandedPosition));
-                    //and hide the seeMore view
-                    /*expListView.findViewById((int) listAdapter.getGroupId(currExpandedPosition))
-                            .findViewById(R.id.seeMore)
-                            .setVisibility(View.INVISIBLE);*/
-
                     GlobalVariables.setPrevExpandedPos(-1);
                     GlobalVariables.setCurrExpandedPos(-1);
                 }
             }
         });
 
-
-/*        // Listview on child click listener
-        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {}
-        });*/
-
         return rootView;
     }
 
-    @Override
+    /*@Override
     public void onStart(){
         super.onStart();
-
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        View rv = getView();
-        Log.d("in on pause", " ");
-        // get the listview
-        expListView = (ExpandableListView) rv.findViewById(R.id.lvExp);
-
-        RecyclerView viewer = (RecyclerView) expListView.findViewById(R.id.browseChildView);
-
-       if (viewer != null){
-           LinearLayoutManager lm = (LinearLayoutManager) viewer.getLayoutManager();
-           mState = lm.onSaveInstanceState();
-       }
     }
 
 
     @Override
     public void onStop() {
         super.onStop();
-        View rv = getView();
-        Log.d("in on stop", " ");
-        // get the listview
-        expListView = (ExpandableListView) rv.findViewById(R.id.lvExp);
-
-        RecyclerView viewer = (RecyclerView) expListView.findViewById(R.id.browseChildView);
-
-        if (viewer != null){
-            Log.d("onStop", "viewer "+viewer.toString());
-            LinearLayoutManager lm = (LinearLayoutManager) viewer.getLayoutManager();
-            Log.d("onStop", "lm "+lm.toString());
-            mState = lm.onSaveInstanceState();
-        }
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+    }*/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -180,17 +136,6 @@ public class BrowseFragment extends Fragment{
             LinearLayoutManager lm = (LinearLayoutManager) viewer.getLayoutManager();
             Log.d("onStop", "lm "+lm.toString());
             mState = lm.onSaveInstanceState();
-        }
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        Log.d("in on resume", " ");
-        View rv = getView();
-
-        if (rv != null) {
-
         }
     }
 

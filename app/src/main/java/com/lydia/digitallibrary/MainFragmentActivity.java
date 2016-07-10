@@ -10,17 +10,19 @@ import android.support.v4.app.FragmentTransaction;
 
 import android.view.Menu;
 import android.view.Window;
+import android.view.WindowManager;
 
 
 public class MainFragmentActivity extends FragmentActivity {
 
     public static final String TAG = "MainFragmentActivity";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

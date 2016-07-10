@@ -3,28 +3,33 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
     android:background="#ddddff">
-
 
     <TextView
         android:id="@+id/lblListHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:paddingLeft="@dimen/margin_medium"
-        android:textSize="17dp"
+        android:textSize="20sp"
         android:textColor="#00001D" />
 
-    <TextView
+    <Button
         android:id="@+id/seeMore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
-        android:textSize="15dp"
-        android:textColor="#00001D"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/margin_small"
+        android:padding="@dimen/margin_small"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textSize="16sp"
         android:text="See More"
+        android:textColor="@drawable/see_more_text"
+        android:background="@android:color/transparent"
         android:visibility="invisible"
-        android:gravity="end"
-        android:layout_alignParentRight="true" />
+        android:gravity="end" />
 
 </RelativeLayout>

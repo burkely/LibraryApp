@@ -19,9 +19,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
@@ -129,13 +129,10 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View convertView, ViewGroup parent) {
 
-        Log.d("group id ", String.valueOf(getGroupId(groupPosition)));
-
         String headerTitle = (String) getGroup(groupPosition);
 
-        ViewHolderItem viewHolder;
         //set up the ViewHolder
-
+        final ViewHolderItem viewHolder;
 
         if(convertView == null){
 
@@ -147,33 +144,37 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
             viewHolder = new ViewHolderItem();
             viewHolder.categoryName = (TextView) convertView.findViewById(R.id.lblListHeader);
 
-            viewHolder.seeMore = (TextView) convertView.findViewById(R.id.seeMore);
+            viewHolder.seeMore = (Button) convertView.findViewById(R.id.seeMore);
 
             // store the holder with the view.
             convertView.setTag(viewHolder);
         }
 
-        /*TextView tv = (TextView) convertView.findViewById(R.id.lblListHeader);
-        tv.setText(headerTitle);
-        tv.setTypeface(null, Typeface.BOLD);*/
-
         else{
-            // we've just avoided calling findViewById() on resource everytime
-            // just use the viewHolder
+            // avoided calling findViewById() on resource everytime
+            // just use the existing viewHolder
             viewHolder = (ViewHolderItem) convertView.getTag();
         }
 
-        //convertView.setId((int) getGroupId(groupPosition));
-
+        //assign values to holder
         viewHolder.categoryName.setText(headerTitle);
         viewHolder.categoryName.setTypeface(null, Typeface.BOLD);
-
+        viewHolder.seeMore.setFocusable(false);
         int expView = GlobalVariables.getCurrExpandedPos();
         if (expView == groupPosition){
             viewHolder.seeMore.setVisibility(View.VISIBLE);
         }else {
             viewHolder.seeMore.setVisibility(View.INVISIBLE);
         }
+
+        //set on click listener on our button
+        viewHolder.seeMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+
+                startCollectionView();
+            }
+        });
 
         return convertView;
     }
@@ -186,6 +187,27 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
+    }
+
+    public void startCollectionView(){
+
+        CollectionViewFragment collectionFragment = new CollectionViewFragment();
+
+        //Bundle bun = new Bundle();
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            collectionFragment.setEnterTransition(new Fade());
+            mParent.setExitTransition(new Fade());
+
+            FragmentTransaction transaction = mActivity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, collectionFragment)
+                    .addToBackStack("transactioncoll");
+            //apply transaction
+            transaction.commit();
+        }
     }
 
     public void startItemView(View view, int imgId, int position){
@@ -207,7 +229,6 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
             mParent.setExitTransition(new Fade());
             viewFragment.setSharedElementReturnTransition(new ItemViewTransition());
 
-
             FragmentTransaction transaction = mActivity.getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, viewFragment)
@@ -220,8 +241,7 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
 
     public static class ViewHolderItem {
         TextView categoryName;
-        TextView seeMore;
-
+        Button seeMore;
     }
 
 }

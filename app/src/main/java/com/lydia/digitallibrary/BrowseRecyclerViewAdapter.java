@@ -1,8 +1,6 @@
 package com.lydia.digitallibrary;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +27,7 @@ public class BrowseRecyclerViewAdapter extends RecyclerView.Adapter<BrowseRecycl
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View card = inflater.inflate(R.layout.browse_cards, null, false);
+        View card = inflater.inflate(R.layout.card_layout, null, false);
         ViewHolder viewHolder = new ViewHolder(card);
 
         viewHolder.Name = (TextView) card.findViewById(R.id.card_title);
