@@ -2,6 +2,7 @@ package com.lydia.digitallibrary;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,9 +27,18 @@ public class CollectionViewFragment extends Fragment{
 
     private static final String TAG = "CollectionViewFragment";
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
-    private static final int SPAN_COUNT = 2;
+    private static final int SPAN_COUNT = 3;
     private static final int DATASET_COUNT = 60;
-    private Activity mActivity;
+
+    protected LayoutManagerType mCurrentLayoutManagerType;
+
+    protected RecyclerView mRecyclerView;
+    protected FloatingActionButton mFab;
+    protected BrowseRecyclerViewAdapter mAdapter;
+    protected RecyclerView.LayoutManager mLayoutManager;
+    protected String[] mDataset;
+
+    private List<String> childData;
 
     public CollectionViewFragment(){}
 
@@ -36,15 +46,6 @@ public class CollectionViewFragment extends Fragment{
         GRID_LAYOUT_MANAGER,
         LINEAR_LAYOUT_MANAGER
     }
-
-    protected LayoutManagerType mCurrentLayoutManagerType;
-
-    protected RecyclerView mRecyclerView;
-    protected BrowseRecyclerViewAdapter mAdapter;
-    protected RecyclerView.LayoutManager mLayoutManager;
-    protected String[] mDataset;
-
-    private List<String> childData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,20 +68,34 @@ public class CollectionViewFragment extends Fragment{
 
         mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
 
-        if (savedInstanceState != null) {
+       /* if (savedInstanceState != null) {
             // Restore saved layout manager type.
             mCurrentLayoutManagerType = (LayoutManagerType) savedInstanceState
                     .getSerializable(KEY_LAYOUT_MANAGER);
-        }
+        }*/
+
+        mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
         setRecyclerViewLayoutManager(mCurrentLayoutManagerType);
 
         List<String> childData =  Constants.myTestData;
 
-        mAdapter = new BrowseRecyclerViewAdapter(getContext(), childData);
         // Set RecyclerViewAdapter as the adapter for RecyclerView.
+        mAdapter = new BrowseRecyclerViewAdapter(getContext(), childData);
         mRecyclerView.setAdapter(mAdapter);
 
-
+        mFab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(mCurrentLayoutManagerType == LayoutManagerType.LINEAR_LAYOUT_MANAGER) {
+                    mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
+                }else{
+                    mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                }
+                setRecyclerViewLayoutManager(mCurrentLayoutManagerType);
+                mRecyclerView.setAdapter(mAdapter);
+            }
+        });
 
 
         return rootView;

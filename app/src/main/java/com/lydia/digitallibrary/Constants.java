@@ -28,7 +28,4 @@ public class Constants {
                                         R.mipmap.img5, R.mipmap.img5a, R.mipmap.img5a};
 
 
-    // child data in format of header title, child title
-    private HashMap<String, List<String>> _listDataChild;
-
 }

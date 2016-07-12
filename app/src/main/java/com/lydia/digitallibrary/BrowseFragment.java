@@ -118,27 +118,6 @@ public class BrowseFragment extends Fragment{
         super.onResume();
     }*/
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        //Save the fragment's state here
-
-        View rv = getView();
-        Log.d("in on stop", " ");
-        // get the listview
-        expListView = (ExpandableListView) rv.findViewById(R.id.lvExp);
-
-        RecyclerView viewer = (RecyclerView) expListView.findViewById(R.id.browseChildView);
-
-        if (viewer != null){
-            Log.d("onStop", "viewer "+viewer.toString());
-            LinearLayoutManager lm = (LinearLayoutManager) viewer.getLayoutManager();
-            Log.d("onStop", "lm "+lm.toString());
-            mState = lm.onSaveInstanceState();
-        }
-    }
-
     private void prepareListData() {
         listDataHeader = Constants.CATEGORIES;
         listDataChild = new HashMap<>();
