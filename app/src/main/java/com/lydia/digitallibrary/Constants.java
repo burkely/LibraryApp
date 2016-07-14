@@ -11,6 +11,10 @@ import java.util.List;
  */
 public class Constants {
 
+    public static int CARD_GRID = 1;
+    public static int CARD_LIST = 2;
+    public static int CARD_LIST_SUB = 3;
+
     public static ArrayList<String> CATEGORIES = new ArrayList<>(Arrays.asList(
             "Caricatures", "Charts", "Diagrams", "Engravings", "Etchings", "Graphs",
             "Illustrations", "Maps", "Manuscripts", "Music", "Paintings", "Pamphlets",

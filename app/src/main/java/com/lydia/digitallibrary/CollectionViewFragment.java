@@ -1,6 +1,5 @@
 package com.lydia.digitallibrary;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -28,13 +27,12 @@ public class CollectionViewFragment extends Fragment{
     private static final String TAG = "CollectionViewFragment";
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 3;
-    private static final int DATASET_COUNT = 60;
 
     protected LayoutManagerType mCurrentLayoutManagerType;
 
     protected RecyclerView mRecyclerView;
     protected FloatingActionButton mFab;
-    protected BrowseRecyclerViewAdapter mAdapter;
+    protected ItemRecyclerViewAdapter mAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected String[] mDataset;
 
@@ -51,8 +49,6 @@ public class CollectionViewFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle bundle = getArguments();
-
     }
 
     @Override
@@ -61,12 +57,6 @@ public class CollectionViewFragment extends Fragment{
         View rootView = inflater.inflate(R.layout.collection_view_frag, container, false);
         rootView.setTag(TAG);
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerViewCollection);
-
-        // The RecyclerView.LayoutManager defines elements are laid out.
-        mLayoutManager = new LinearLayoutManager(getActivity());
-
-        mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
 
        /* if (savedInstanceState != null) {
             // Restore saved layout manager type.
@@ -74,25 +64,40 @@ public class CollectionViewFragment extends Fragment{
                     .getSerializable(KEY_LAYOUT_MANAGER);
         }*/
 
+        //get recyclerView
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerViewCollection);
+
+        //get data for recyclerview
+        childData =  Constants.myTestData;
+
+        // The RecyclerView.LayoutManager defines elements are laid out.
+        mLayoutManager = new LinearLayoutManager(getActivity());
+
+        //Set layout manager type
         mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
         setRecyclerViewLayoutManager(mCurrentLayoutManagerType);
 
-        List<String> childData =  Constants.myTestData;
-
         // Set RecyclerViewAdapter as the adapter for RecyclerView.
-        mAdapter = new BrowseRecyclerViewAdapter(getContext(), childData);
+        mAdapter = new ItemRecyclerViewAdapter(getContext(), childData, Constants.CARD_GRID);
         mRecyclerView.setAdapter(mAdapter);
 
+        //Toggle views (Grid-List) on Floating Action Button click
         mFab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 if(mCurrentLayoutManagerType == LayoutManagerType.LINEAR_LAYOUT_MANAGER) {
                     mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
+                    //Get new adapter with correct layout type
+                    mAdapter = new ItemRecyclerViewAdapter(getContext(), childData, Constants.CARD_GRID);
                 }else{
                     mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                    //Get new adapter with correct layout type
+                    mAdapter = new ItemRecyclerViewAdapter(getContext(), childData, Constants.CARD_LIST);
                 }
+                //Set layout manager type
                 setRecyclerViewLayoutManager(mCurrentLayoutManagerType);
+                //Set adapter
                 mRecyclerView.setAdapter(mAdapter);
             }
         });
@@ -125,8 +130,8 @@ public class CollectionViewFragment extends Fragment{
                 mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
                 break;
             default:
-                mLayoutManager = new LinearLayoutManager(getActivity());
-                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
+                mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
         }
 
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -140,14 +145,4 @@ public class CollectionViewFragment extends Fragment{
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    /**
-     * Generates Strings for RecyclerView's adapter. This data would usually come
-     * from a local content provider or remote server.
-     */
-    private void initDataset() {
-        mDataset = new String[DATASET_COUNT];
-        for (int i = 0; i < DATASET_COUNT; i++) {
-            mDataset[i] = "This is element #" + i;
-        }
-    }
 }

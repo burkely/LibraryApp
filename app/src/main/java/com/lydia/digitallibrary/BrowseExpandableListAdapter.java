@@ -98,8 +98,8 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
 
         childData =  listChildData.get(this.listCategories.get(groupPosition));
 
-        BrowseRecyclerViewAdapter horizontalAdapter = new BrowseRecyclerViewAdapter(
-                mActivity, childData);
+        ItemRecyclerViewAdapter horizontalAdapter = new ItemRecyclerViewAdapter(
+                mActivity, childData, Constants.CARD_GRID);
 
         // use this to improve performance if you know changes in
         // content do not change the layout size of the RecyclerView
