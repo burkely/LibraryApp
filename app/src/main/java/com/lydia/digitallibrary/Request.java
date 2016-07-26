@@ -1,11 +1,12 @@
 package com.lydia.digitallibrary;
 
+import android.util.Log;
+
+import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
-/**
- * Created by osulld13 on 07/02/16.
- */
+
 public class Request implements Callable<Response> {
     private URL url;
 
@@ -15,6 +16,11 @@ public class Request implements Callable<Response> {
 
     @Override
     public Response call() throws Exception {
-        return new Response(url.openStream());
+        Log.d("tagtest", url.toString());
+        InputStream iostream = url.openStream();
+        Log.d("tagtest1", iostream.toString());
+        Response resp = new Response(url.openStream());
+        Log.d("tagtest2", resp.toString());
+        return resp;
     }
 }

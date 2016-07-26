@@ -1,16 +1,11 @@
 package com.lydia.digitallibrary;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,21 +20,23 @@ public class BrowseFragment extends Fragment{
     private BrowseExpandableListAdapter listAdapter;
     private ExpandableListView expListView;
     private List<String> listDataHeader;
-    private HashMap<String, List<String>> listDataChild;
-    private Parcelable mState;
+
     public int prevExpandedPosition;
     public int currExpandedPosition;
 
+    public BrowseFragment(){
+        setArguments(new Bundle());
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        listDataHeader = AppConstants.CATEGORIES;
+
         GlobalVariables.setCurrExpandedPos(-1);
         GlobalVariables.setPrevExpandedPos(-1);
 
-        // preparing list data
-        prepareListData();
     }
 
     @Override
@@ -52,18 +49,10 @@ public class BrowseFragment extends Fragment{
         // get the listview
         expListView = (ExpandableListView) rootView.findViewById(R.id.lvExp);
 
-        listAdapter = new BrowseExpandableListAdapter(getActivity(), this, listDataHeader, listDataChild);
+        listAdapter = new BrowseExpandableListAdapter(getActivity(), this, listDataHeader);
 
         // setting list adapter
         expListView.setAdapter(listAdapter);
-
-
-        // Listview Group click listener
-        /*expListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView parent, View v,
-                                        int groupPosition, long id) {}
-        });*/
 
 
         // Listview Group expanded listener
@@ -87,6 +76,7 @@ public class BrowseFragment extends Fragment{
         expListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
+
                 if (GlobalVariables.getCurrExpandedPos() == groupPosition) {
                     GlobalVariables.setPrevExpandedPos(-1);
                     GlobalVariables.setCurrExpandedPos(-1);
@@ -96,37 +86,4 @@ public class BrowseFragment extends Fragment{
 
         return rootView;
     }
-
-    /*@Override
-    public void onStart(){
-        super.onStart();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-    }*/
-
-    private void prepareListData() {
-        listDataHeader = Constants.CATEGORIES;
-        listDataChild = new HashMap<>();
-
-        // Adding child data
-        for(int i=0; i<listDataHeader.size(); i++){
-            listDataChild.put(listDataHeader.get(i), Constants.myTestData); // Header, Child data
-        }
-    }
-
-
 }

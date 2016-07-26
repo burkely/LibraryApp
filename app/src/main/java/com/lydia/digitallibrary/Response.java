@@ -2,9 +2,6 @@ package com.lydia.digitallibrary;
 
 import java.io.InputStream;
 
-/**
- * Created by osulld13 on 07/02/16.
- */
 public class Response {
     private InputStream body;
 

@@ -2,11 +2,13 @@ package com.lydia.digitallibrary;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -18,11 +20,39 @@ import java.util.concurrent.Future;
 /**
  * Created by osulld13 on 07/02/16.
  */
-public class QueryManager {
+public class SolrQueryManager {
 
-    private final String TAG = QueryManager.class.getSimpleName();
+    //private final String TAG = SolrQueryManager.class.getSimpleName();
+    private final String TAG = "thumbnail";
+    // return elements in a collection
+    public String constructCollectionQuery(String collectionQuery, int start, int rows) {
 
-    public String constructSolrQuery(String freeQuery, int page, int rowsPerPage){
+        String query;
+
+        start = start*21;
+
+        try {
+            query = "http://library02.tchpc.tcd.ie:8080/solr/dris/select?indent=on&version=2.2"
+                    + "&q=" + URLEncoder.encode(collectionQuery, "UTF-8")
+                    + "&fq="
+                    + "&start=" + String.valueOf(start)
+                    + "&rows=" + String.valueOf(rows)
+                    + "&fl=*%2Cscore&qt=standard&wt=standard&explainOther=&hl.fl=";
+
+        } catch(UnsupportedEncodingException error) {
+            Log.e(this.getClass().getSimpleName(), "Error encoding url. Trying without encoding");
+            query = "http://library02.tchpc.tcd.ie:8080/solr/dris/select?indent=on&version=2.2&"
+                    + "/select?q="
+                    + collectionQuery
+                    + "&fq="
+                    + "&start=" + String.valueOf(start)
+                    + "&rows=" + String.valueOf(start)
+                    + "&fl=*%2Cscore&qt=standard&wt=standard&explainOther=&hl.fl=";
+        }
+        return query;
+    }
+
+    public String constructSolrSearchQuery(String freeQuery, int page, int rowsPerPage){
 
         String start = String.valueOf(page * rowsPerPage);
         String rows = String.valueOf(rowsPerPage);
@@ -81,6 +111,8 @@ public class QueryManager {
 
         URL url;
 
+        Log.d(TAG, "trying to get thumbnail");
+
         // determine whether to get the larger of smaller thumbnail
         if (size == 0) {
             url = getResourceThumbnailURL(pid);
@@ -92,13 +124,14 @@ public class QueryManager {
         //Log.d(TAG, url.toString());
         Bitmap bmp = null;
         try {
+            Log.d(TAG, "in try");
             // Make sure image complies with memory limits
 
             // Load in info
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(url.openConnection().getInputStream(), null, options);
-
+            Log.d(TAG, "streaming in try");
             // Calculate whether to load in resampled image
             options.inSampleSize = calculateThumbnailSampleSize(options,
                     AppConstants.thumbnailImageWidth,
@@ -183,7 +216,7 @@ public class QueryManager {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        //Log.d(TAG, url.toString());
+        Log.d(TAG, url.toString());
         return url;
     }
 
@@ -206,10 +239,9 @@ public class QueryManager {
 
         InputStream responseStream = null;
         try {
+
             // Fire a request.
             Future<Response> response = executor.submit(new Request(new URL(url)));
-
-            // Do your other tasks here (will be processed immediately, current thread won't block).
 
             // Get the response (here the current thread will block until response is returned).
             responseStream = response.get().getBody();
@@ -228,7 +260,7 @@ public class QueryManager {
             e.printStackTrace();
         }
 
-        // Shutdown the threads during shutdown of your app.
+        // Shutdown the threads when finished
         executor.shutdown();
 
         return responseStream;

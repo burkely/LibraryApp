@@ -2,10 +2,12 @@ package com.lydia.digitallibrary;
 
 import android.content.Context;
 
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -18,11 +20,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,23 +41,33 @@ import java.util.List;
 public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
 
     private FragmentActivity mActivity;
+
     private Context mContext;
     private Fragment mParent;
     private List<String> listCategories; // header titles
-    private HashMap<String, List<String>> listChildData;
     public LinearLayoutManager layoutManager;
-    private List<String> childData;
     private RecyclerView horizontalListView;
 
-    public Parcelable state;
+    private SolrQueryManager solrQueryManager;
+    private ArrayList<Document> documentsRetrieved;
+    private ResponseXMLParser responseXMLParser;
 
-    public BrowseExpandableListAdapter(FragmentActivity activity, Fragment parent, List<String> listDataHeader,
-                                       HashMap<String, List<String>> _listChildData) {
+    private String category;
+
+    private ItemRecyclerViewAdapter horizontalAdapter;
+
+    public BrowseExpandableListAdapter(FragmentActivity activity, Fragment parent, List<String> listDataHeader) {
         this.mActivity = activity;
         this.mParent = parent;
         this.mContext = mParent.getContext();
-        this.listCategories = listDataHeader;
-        this.listChildData = _listChildData;
+        this.listCategories = AppConstants.CATEGORIES;
+
+        // Initialize Query constructor
+        solrQueryManager = new SolrQueryManager();
+        // Get new response parser
+        responseXMLParser = new ResponseXMLParser();
+
+        documentsRetrieved = new ArrayList<>();
     }
 
     @Override
@@ -58,7 +77,8 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getGroup(int groupPosition) {
-        return this.listCategories.get(groupPosition);
+        category = this.listCategories.get(groupPosition);
+        return category;
     }
 
     @Override
@@ -72,7 +92,7 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public Object getChild(int groupPosition, int childPosititon) {
+    public Object getChild(int groupPosition, int childPosition) {
         return this.listCategories.get(groupPosition);
     }
 
@@ -85,6 +105,12 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
     public View getChildView(int groupPosition, int childPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
+        GlobalVariables.clearDocumentsRetrieved();
+        GlobalVariables.clearPreviewArray();
+
+        Log.d("Clears", GlobalVariables.getDocumentsRetrieved().toString() +
+        GlobalVariables.getPreviewArray().toString());
+
         if (convertView == null) {
             // inflate the layout
             LayoutInflater inflater = (LayoutInflater) mActivity
@@ -92,33 +118,55 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
             convertView = inflater.inflate(R.layout.browse_list_child_view, null);
         }
 
+        category = listCategories.get(groupPosition);
+        GlobalVariables.setCategory(category);
+
+        //Get the collection items to preview
+        GetCollectionResults getCollectionResults = new GetCollectionResults();
+        getCollectionResults.execute(category);
+
+        //Get recyclerView
         horizontalListView = (RecyclerView) convertView.findViewById(R.id.browseChildView);
+        //assign new layout manager
         layoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.HORIZONTAL, false);
         horizontalListView.setLayoutManager(layoutManager);
 
-        childData =  listChildData.get(this.listCategories.get(groupPosition));
-
-        ItemRecyclerViewAdapter horizontalAdapter = new ItemRecyclerViewAdapter(
-                mActivity, childData, Constants.CARD_GRID);
+        //Return to previous scroll position if currently expanded
+        if (GlobalVariables.getLastFirstVisiblePos()!=-1) {
+            horizontalListView.scrollToPosition(GlobalVariables.getLastFirstVisiblePos());
+            GlobalVariables.setFirstLastVisiblePos(-1);
+        }
 
         // use this to improve performance if you know changes in
         // content do not change the layout size of the RecyclerView
         horizontalListView.setHasFixedSize(true);
 
+        //Get & Set adapter
+        horizontalAdapter = new ItemRecyclerViewAdapter(mActivity,
+                GlobalVariables.getDocumentsRetrieved(), AppConstants.CARD_GRID);
+        horizontalAdapter.setHasStableIds(true);
         horizontalListView.setAdapter(horizontalAdapter);
+
+        horizontalListView.setRecyclerListener(new RecyclerView.RecyclerListener() {
+
+            @Override
+            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+                ImageView img = (ImageView) holder.itemView.findViewById(R.id.thumbnail);
+                img.setImageResource(R.mipmap.image_loading);
+
+            }
+        });
+
 
         horizontalListView.addOnItemTouchListener(new RecyclerItemClickListener(mActivity,
                 new RecyclerItemClickListener.OnItemClickListener() {
 
                     @Override
                     public void onItemClick(View view, int position) {
+                        int lastFirstVisiblePosition = ((LinearLayoutManager)horizontalListView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                        GlobalVariables.setFirstLastVisiblePos(lastFirstVisiblePosition);
 
-                        LinearLayoutManager lm = (LinearLayoutManager) horizontalListView.getLayoutManager();
-                        state = lm.onSaveInstanceState();
-
-                        startItemView(view, Constants.myTestImgs[position], position);
-
-                        Log.d("state", state.toString());
+                        startItemView(view, position);
                     }
                 }));
 
@@ -128,8 +176,6 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View convertView, ViewGroup parent) {
-
-        String headerTitle = (String) getGroup(groupPosition);
 
         //set up the ViewHolder
         final ViewHolderItem viewHolder;
@@ -157,9 +203,12 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
         }
 
         //assign values to holder
-        viewHolder.categoryName.setText(headerTitle);
+        category = listCategories.get(groupPosition);
+        viewHolder.categoryName.setText(category);
+
         viewHolder.categoryName.setTypeface(null, Typeface.BOLD);
         viewHolder.seeMore.setFocusable(false);
+
         int expView = GlobalVariables.getCurrExpandedPos();
         if (expView == groupPosition){
             viewHolder.seeMore.setVisibility(View.VISIBLE);
@@ -171,7 +220,6 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
         viewHolder.seeMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-
                 startCollectionView();
             }
         });
@@ -193,47 +241,58 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
 
         CollectionViewFragment collectionFragment = new CollectionViewFragment();
 
-        //Bundle bun = new Bundle();
+        Bundle bun = new Bundle();
+        bun.putString("category", category);
+        collectionFragment.setArguments(bun);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
             collectionFragment.setEnterTransition(new Fade());
+            collectionFragment.setReenterTransition(new Fade());
+            collectionFragment.setExitTransition(new Fade());
             mParent.setExitTransition(new Fade());
+            mParent.setReenterTransition(new Fade());
 
             FragmentTransaction transaction = mActivity.getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, collectionFragment)
-                    .addToBackStack("transactioncoll");
+                    .addToBackStack("transactionCollection");
             //apply transaction
             transaction.commit();
         }
     }
 
-    public void startItemView(View view, int imgId, int position){
+    public void startItemView(View view, int position){
 
         // Find the shared element (in Fragment A)
-        ImageView img = (ImageView) view.findViewById(R.id.thumbnail);
+        ImageView imgView = (ImageView) view.findViewById(R.id.thumbnail);
+
+        Bitmap bitmap = ((BitmapDrawable)imgView.getDrawable()).getBitmap();
+        if(bitmap != null) {
+            GlobalVariables.setSelectedBitmap(bitmap);
+        }
 
         ItemViewFragment viewFragment = new ItemViewFragment();
 
         Bundle bun = new Bundle();
-        bun.putString("trans name", img.getTransitionName());
-        bun.putInt("selected_image", imgId);
+        bun.putStringArray(AppConstants.documentTransferString, documentsRetrieved.get(position).toArray());
+        bun.putString(AppConstants.imageTransitionName, imgView.getTransitionName());
         viewFragment.setArguments(bun);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
             viewFragment.setSharedElementEnterTransition(new ItemViewTransition());
-            viewFragment.setEnterTransition(new Explode());
+            viewFragment.setEnterTransition(new Fade());
             mParent.setExitTransition(new Fade());
+            //mParent.setReturnTransition(new Fade());
             viewFragment.setSharedElementReturnTransition(new ItemViewTransition());
 
             FragmentTransaction transaction = mActivity.getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, viewFragment)
                     .addToBackStack("transaction")
-                    .addSharedElement(img, "cardImg" + position);
+                    .addSharedElement(imgView, "cardImg" + position);
             //apply transaction
             transaction.commit();
         }
@@ -242,6 +301,84 @@ public class BrowseExpandableListAdapter extends BaseExpandableListAdapter {
     public static class ViewHolderItem {
         TextView categoryName;
         Button seeMore;
+    }
+
+    // Creates an asynchronous task that gets the results to the search
+    private class GetCollectionResults extends AsyncTask<String, Integer, ArrayList<Document>>  {
+
+        String query;
+
+        protected ArrayList<Document> doInBackground(String... sQuery){
+            try {
+                if (android.os.Debug.isDebuggerConnected()) {
+                    android.os.Debug.waitForDebugger();
+                }
+                query = sQuery[0].toLowerCase();
+
+                String solrQuery = solrQueryManager.constructCollectionQuery(query, 0, 21);
+
+                InputStream responseStream = solrQueryManager.queryUrlForDataStream(solrQuery);
+
+                ArrayList<Document> documentList = null;
+
+                try {
+                    documentList = (ArrayList<Document>) responseXMLParser.parseSearchResponse(responseStream);
+                    //Log.d("Test2 doc lit", String.valueOf(documentList.size()));
+                } catch (java.io.IOException e){
+                    // Add error dialogue
+                    e.printStackTrace();
+                } catch (XmlPullParserException e){
+                    // Add error dialogue
+                    e.printStackTrace();
+                }
+                // Assign the retrieved documents to the documentsRetrieved List
+                return documentList;
+            } catch (java.lang.RuntimeException e){
+                return null;
+            }
+        }
+
+        protected void onPostExecute (ArrayList<Document> result) {
+            // if result retrieved
+            if (result != null) {
+                setListToRetrievedDocuments(result);
+                /*if documentsRetrieved
+                if (!result.isEmpty()) {
+                    writeSearchToDatabase(query);
+                }*/
+            }
+            // if no result retrieved
+            else {
+                Log.d("OnPostExecuteresult", "No result received");
+            }
+                /*builder.setMessage(R.string.network_error_message)
+                        .setTitle(R.string.network_error_title);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked OK button
+                    }
+                });
+                final AlertDialog networkErrorDialog = builder.create();
+                networkErrorDialog.show();
+            }
+            mProgressBar.setVisibility(View.INVISIBLE);*/
+        }
+    }
+
+    private void setListToRetrievedDocuments(ArrayList<Document> result) {
+        if(result.size() != 0){
+
+            GlobalVariables.clearDocumentsRetrieved();
+
+            for (Document doc : result) {
+                GlobalVariables.appendToDocumentsRetrieved(doc);
+            }
+
+            documentsRetrieved = GlobalVariables.getDocumentsRetrieved();
+
+            horizontalAdapter = new ItemRecyclerViewAdapter(mContext, GlobalVariables.getDocumentsRetrieved(), AppConstants.CARD_GRID);
+            horizontalListView.setAdapter(horizontalAdapter);
+        }
     }
 
 }

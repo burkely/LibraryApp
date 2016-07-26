@@ -8,15 +8,14 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.Window;
-import android.view.WindowManager;
 
 
-public class MainFragmentActivity extends FragmentActivity {
+public class BrowseFragmentActivity extends FragmentActivity {
 
-    public static final String TAG = "MainFragmentActivity";
+    public static final String TAG = "BrowseFragmentActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,18 +25,28 @@ public class MainFragmentActivity extends FragmentActivity {
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.browse_activity);
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             BrowseFragment bFragment = new BrowseFragment();
 
-            ItemViewFragment viewFragment = new ItemViewFragment();
+            //ItemViewFragment viewFragment = new ItemViewFragment();
 
             transaction.add(R.id.fragment_container, bFragment);
             transaction.commit();
         }
+
+        //initialize arrays on opening of app
+        GlobalVariables.setPreviewArray();
+        Log.d("tagtag", GlobalVariables.getPreviewArray().toString());
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        GlobalVariables.clearPreviewArray();
     }
 
     @Override
