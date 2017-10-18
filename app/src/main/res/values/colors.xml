@@ -6,5 +6,25 @@
 
 
     <color name="cardTitleBg">#C9cccccc</color>
+    <color name="fragmentBg">#efefef</color>
+    <color name="recyclerViewBg">#e1e1e1</color>
+
+    <color name="categoryTheme0">#8e44ad</color> <!--wysteria-->
+    <color name="categoryTheme1">#2980b9</color> <!--belize hole-->
+    <color name="categoryTheme2">#27ae60</color> <!--nephritis-->
+    <color name="categoryTheme3">#16a085</color> <!--green sea-->
+    <color name="categoryTheme4">#34495e</color> <!--wet asphalt-->
+    <color name="categoryTheme5">#c0392b</color> <!--pomegranate-->
+    <color name="categoryTheme6">#d35400</color> <!--pumpkin-->
+    <color name="categoryTheme7">#f39c12</color><!--orange-->
+    <color name="categoryTheme8">#95a5a6</color><!--concrete-->
+    <color name="categoryTheme9">#9b59b6</color><!--amethyst-->
+    <color name="categoryTheme10">#3498db</color><!--peter river-->
+    <color name="categoryTheme11">#2ecc71</color><!--emerald-->
+    <color name="categoryTheme12">#1abc9c</color><!--turquoise-->
+    <color name="categoryTheme13">#2c3e50</color> <!--midnight blue-->
+    <color name="categoryTheme14">#f1c40f</color> <!--sunflower-->
+
+
 
 </resources>

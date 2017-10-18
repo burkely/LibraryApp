@@ -5,6 +5,10 @@
     <string name="linear_layout_manager">Linear Layout Manager</string>
     <string name="see_more_button">See More</string>
 
+    <string name="home_tab">Home</string>
+    <string name="browse_collection_tab">Browse</string>
+    <string name="bookmarked_tab">Bookmarked</string>
+
     <string name="action_search">Search</string>
     <string name="action_bookmarks">Bookmarks</string>
     <string name="action_settings">Settings</string>
@@ -32,5 +36,19 @@
     <string name="no_suggestions">There are no suggestions for you at the moment!</string>
     <string name="popular_tab_title">Popular</string>
     <string name="suggested_tab_title">Suggested</string>
+
+    <string name="aboutTitle">About the Digital Collection</string>
+    <string name="aboutContent">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Vestibulum purus orci, sollicitudin sit amet lorem at, laoreet ultrices enim.
+        Aliquam a lacus tellus. Duis neque odio, tincidunt et mollis eu, fringilla quis risus.
+        Lorem ipsum....
+    </string>
+    <string name="moreAboutContent">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Vestibulum purus orci, sollicitudin sit amet lorem at, laoreet ultrices enim.
+        Aliquam a lacus tellus. Duis neque odio, tincidunt et mollis eu, fringilla quis risus.
+        Lorem ipsum....
+    </string>
 
 </resources>
