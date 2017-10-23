@@ -54,19 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
             }});
 
-/*
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public void onClose(SearchView v) {
-
-                TextView toolbarTitle = (TextView)toolbar.findViewById(R.id.toolbarTextView);
-                toolbarTitle.setVisibility(View.GONE);
-                LinearLayout searchPlate = (LinearLayout) searchView.findViewById(R.id.search_plate);
-                searchPlate.setBackgroundColor(0xffffffff);
-
-            }});
-*/
-
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());

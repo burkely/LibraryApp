@@ -5,47 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="?attr/colorAccent"
-        app:layout_scrollFlags="enterAlways"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:elevation="2dp"
-            android:translationZ="2dp"
-            android:id="@+id/search_edit_frame">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trinity Digital Collections"
-                android:textSize="18sp"
-                android:textColor="#ffffff"
-                android:textStyle="normal"
-                android:id="@+id/toolbarTextView"
-                android:layout_centerVertical="true"
-                android:layout_alignParentStart="true" />
-
-            <android.support.v7.widget.SearchView
-                android:id="@+id/mySearchView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:iconifiedByDefault="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true" />
-
-        </RelativeLayout>
-
-    </android.support.v7.widget.Toolbar>
-
-
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
@@ -58,8 +17,8 @@
         android:layout_height="56dp"
         android:layout_gravity="start"
         android:layout_alignParentBottom="true"
-        android:background="@android:color/white"
-        app:elevation="16dp"
+        android:background="@color/barelyGrey"
+        app:elevation="10dp"
         app:menu="@menu/bottom_nav_items" />
     <!-- Note: background color is required to get elevation -->
 

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#0167b3</color>
+    <color name="colorPrimaryDark">#0167b3</color>
+    <color name="colorSecondary">#FFbf00</color>
+    <color name="colorAccent">#e83f57</color>
 
 
     <color name="cardTitleBg">#C9cccccc</color>
     <color name="fragmentBg">#efefef</color>
-    <color name="recyclerViewBg">#e1e1e1</color>
+    <color name="barelyGrey">#f3f3f3</color>
+    <color name="lightGrey">#e1e1e1</color>
 
     <color name="categoryTheme0">#8e44ad</color> <!--wysteria-->
     <color name="categoryTheme1">#2980b9</color> <!--belize hole-->
