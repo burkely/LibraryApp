@@ -27,9 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private SearchView searchView;
 
     private int[] tabIcons = {
-            R.mipmap.home_icon,
-            R.mipmap.browse_docs_icon,
-            R.mipmap.bookmarked_icon
+            R.drawable.home_line_ic,
+            R.drawable.home_line_ic,
+            R.drawable.home_line_ic
     };
 
     @Override

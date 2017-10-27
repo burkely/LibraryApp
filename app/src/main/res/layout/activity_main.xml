@@ -19,7 +19,9 @@
         android:layout_alignParentBottom="true"
         android:background="@color/barelyGrey"
         app:elevation="10dp"
-        app:menu="@menu/bottom_nav_items" />
+        app:menu="@menu/bottom_nav_items"
+        app:itemTextColor="@drawable/bottom_nav_selector" />
+
     <!-- Note: background color is required to get elevation -->
 
 </RelativeLayout>

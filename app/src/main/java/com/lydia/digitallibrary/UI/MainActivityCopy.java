@@ -1,5 +1,6 @@
 package com.lydia.digitallibrary.UI;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,7 +25,7 @@ import com.lydia.digitallibrary.R;
 public class MainActivityCopy extends AppCompatActivity {
 
     private SearchView searchView;
-
+    private int selectedTab;
     BottomNavigationView bottomNavigation;
 
     @Override
@@ -45,7 +46,7 @@ public class MainActivityCopy extends AppCompatActivity {
             */
 
         bottomNavigation = (BottomNavigationView)findViewById(R.id.bottom_navigation);
-
+        bottomNavigation.setItemIconTintList(null);
         bottomNavigation.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -53,30 +54,93 @@ public class MainActivityCopy extends AppCompatActivity {
                         Fragment selectedFragment = null;
                         switch (item.getItemId()) {
                             case R.id.home_tab:
-                                selectedFragment = new HomeFragmentContainer();
+                                if(selectedTab == 0){
+                                    //if we're already here, do nothing
+                                    break;
+                                }
+                                else if(selectedTab == 1){
+                                    //if the prev tab was browse make sure to set icon to unselected again
+                                    bottomNavigation.getMenu().getItem(1).setIcon(R.drawable.browse_line_ic);
+                                    // as well as setting curr tab to selected
+                                    item.setIcon(R.drawable.home_fill_ic);
+                                    // + new frag
+                                    selectedFragment = new HomeFragmentContainer();
+                                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                    transaction.replace(R.id.content_frame, selectedFragment);
+                                    transaction.commit();
+                                }//else if its bookmarked..
+                                else {
+                                    bottomNavigation.getMenu().getItem(2).setIcon(R.drawable.star_line_ic);
+                                    item.setIcon(R.drawable.home_fill_ic);
+                                    selectedFragment = new HomeFragmentContainer();
+                                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                    transaction.replace(R.id.content_frame, selectedFragment);
+                                    transaction.commit();
+                                }
+                                //set curr selected tab
+                                selectedTab = 0;
                                 break;
+
                             case R.id.browse_tab:
-                                selectedFragment = new BrowseFragmentContainer();
+                                if(selectedTab == 1){
+                                    break;
+                                }
+                                else if(selectedTab == 2){
+                                    bottomNavigation.getMenu().getItem(2).setIcon(R.drawable.star_line_ic);
+                                    item.setIcon(R.drawable.browse_fill_ic);
+                                    selectedFragment = new BrowseFragmentContainer();
+                                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                    transaction.replace(R.id.content_frame, selectedFragment);
+                                    transaction.commit();
+                                }
+                                else {
+                                    bottomNavigation.getMenu().getItem(0).setIcon(R.drawable.home_line_ic);
+                                    item.setIcon(R.drawable.browse_fill_ic);
+                                    selectedFragment = new BrowseFragmentContainer();
+                                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                    transaction.replace(R.id.content_frame, selectedFragment);
+                                    transaction.commit();
+                                }
+                                selectedTab = 1;
                                 break;
+
                             case R.id.bookmark_tab:
-                                selectedFragment = new HomeFragmentContainer1();
+                                if(selectedTab == 2){
+                                    break;
+                                }
+                                else if(selectedTab == 0){
+                                    bottomNavigation.getMenu().getItem(0).setIcon(R.drawable.home_line_ic);
+                                    item.setIcon(R.drawable.star_fill_ic);
+                                    selectedFragment = new HomeFragmentContainer();
+                                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                    transaction.replace(R.id.content_frame, selectedFragment);
+                                    transaction.commit();
+                                }
+                                else {
+                                    bottomNavigation.getMenu().getItem(1).setIcon(R.drawable.browse_line_ic);
+                                    item.setIcon(R.drawable.star_fill_ic);
+                                    selectedFragment = new HomeFragmentContainer();
+                                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                    transaction.replace(R.id.content_frame, selectedFragment);
+                                    transaction.commit();
+                                }
+                                selectedTab = 2;
                                 break;
                         }
-                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        transaction.replace(R.id.content_frame, selectedFragment);
-                        transaction.commit();
+
                         return true;
                     }
                 });
+
 
 
         //Manually displaying the first fragment - one time only
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.content_frame, new HomeFragmentContainer());
         transaction.commit();
-
-        //Used to select an item programmatically
-        //bottomNavigation.getMenu().getItem(0).setChecked(true);
+        //And the nav icon is selected
+        bottomNavigation.getMenu().getItem(0).setIcon(R.drawable.home_fill_ic);
+        selectedTab = 0;
     }
 
     /*void LoadFragment(int id)
